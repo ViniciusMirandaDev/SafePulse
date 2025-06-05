@@ -79,11 +79,31 @@ public class DesastreController {
         return ResponseEntity.ok(dto);
     }
 
+    /**
+     * Lista todos os desastres ou filtra pelos parâmetros opcionais:
+     * - nome (contains, ignore-case)
+     * - localizacao (contains, ignore-case)
+     * - intervalo de datas (inicio/fim)
+     *
+     * Exemplos:
+     * GET /desastres
+     * GET /desastres?nome=fogo
+     * GET /desastres?localizacao=rio&inicio=2025-06-01&fim=2025-06-10
+     */
     @GetMapping
-    @Operation(summary = "Listar todos os desastres")
+    @Operation(summary = "Listar desastres com filtros opcionais")
     @ApiResponse(responseCode = "200", description = "Lista de desastres retornada")
-    public ResponseEntity<List<DesastreDto>> getAll() {
-        List<DesastreDto> lista = desastreService.getAll().stream()
+    public ResponseEntity<List<DesastreDto>> getAll(
+            @RequestParam(value = "nome", required = false) String nome,
+            @RequestParam(value = "localizacao", required = false) String localizacao,
+            @RequestParam(value = "inicio", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(value = "fim", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim
+    ) {
+        List<Desastre> entidades = desastreService.getByFilters(nome, localizacao, inicio, fim);
+
+        List<DesastreDto> dtos = entidades.stream()
                 .map(d -> DesastreDto.builder()
                         .id(d.getId())
                         .nome(d.getNome())
@@ -93,7 +113,8 @@ public class DesastreController {
                         .build()
                 )
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(lista);
+
+        return ResponseEntity.ok(dtos);
     }
 
     @PutMapping("/{id}")
