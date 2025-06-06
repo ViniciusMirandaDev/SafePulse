@@ -1,13 +1,11 @@
 services:
   db:
-    image: postgres:15
-    container_name: safepulse-db
+    container_name: oracle-std-service-container
+    image: container-registry.oracle.com/database/standard
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: safepulse
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+      DB_USER: oracledb
+      DB_PASSWORD: oracledb
+      DB_NAME: safepulse
     ports:
       - "5432:5432"
 
@@ -17,11 +15,11 @@ services:
     depends_on:
       - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/safepulse
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin://db:5432/safepulse
+      SPRING_DATASOURCE_USERNAME: oracledb
+      SPRING_DATASOURCE_PASSWORD: oracledb
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_DATABASE_PLATFORM: oracle.jdbc.OracleDriver
       SPRING_APPLICATION_NAME: safepulse
     ports:
       - "8080:8080"
